@@ -13,6 +13,7 @@ import {
 	AceLightThemesList,
 } from "@/src/service/AceThemes";
 import { ICodeEditorConfig } from "@/src/type/types";
+
 import parse from "html-react-parser";
 import { Notice, Platform } from "obsidian";
 import * as React from "react";
@@ -34,10 +35,38 @@ declare global {
 
 interface AceSettingsProps {
 	plugin: AceCodeEditorPlugin;
+	onClose: () => void; // Add onClose prop
 }
 
-export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
+export const AceSettings: React.FC<AceSettingsProps> = ({
+	plugin,
+	onClose,
+}) => {
 	const [settingsValue, setSettingsValue] = React.useState(plugin.settings);
+
+	// Effect to handle mobile back key press
+	React.useEffect(() => {
+		// Use Platform.isMobileApp to check for mobile environment
+		if (Platform.isMobileApp) {
+			const handleKeyDown = (event: KeyboardEvent) => {
+				// Android hardware back button (keyCode 4) or Escape key often acts as back/close on modals
+				if (
+					event.key === "GoBack" ||
+					event.key === "Escape" ||
+					event.keyCode === 4
+				) {
+					event.preventDefault();
+					onClose();
+				}
+			};
+
+			document.addEventListener("keydown", handleKeyDown);
+			return () => {
+				document.removeEventListener("keydown", handleKeyDown);
+			};
+		}
+		return () => {};
+	}, [plugin.app, onClose]);
 
 	// 监听外部settings变化，同步到本地状态
 	React.useEffect(() => {

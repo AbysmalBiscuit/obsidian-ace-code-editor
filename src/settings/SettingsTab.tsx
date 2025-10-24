@@ -24,6 +24,11 @@ export default class AceCodeEditorSettingTab extends PluginSettingTab {
 		this.renderContent();
 	}
 
+	// onClose handler for AceSettings
+	closeSettingsTab() {
+		this.hide();
+	}
+
 	hide() {
 		if (this.root) {
 			this.root.unmount();
@@ -35,8 +40,11 @@ export default class AceCodeEditorSettingTab extends PluginSettingTab {
 	private renderContent() {
 		this.root?.render(
 			<React.StrictMode>
-				<AceSettings plugin={this.plugin} />
-			</React.StrictMode>
+				<AceSettings
+					plugin={this.plugin}
+					onClose={this.closeSettingsTab.bind(this)}
+				/>
+			</React.StrictMode>,
 		);
 	}
 }

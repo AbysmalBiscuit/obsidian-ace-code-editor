@@ -1,5 +1,13 @@
 import "@/style/styles";
-import { Editor, Menu, Plugin, setIcon, TFile, TFolder } from "obsidian";
+import {
+	Editor,
+	Menu,
+	Plugin,
+	setIcon,
+	TFile,
+	TFolder,
+	Platform,
+} from "obsidian";
 import { BaseModal } from "./component/modal/BaseModal";
 import { QuickConfigModal } from "./component/modal/QuickConfigModal";
 import { SettingsBus } from "./hooks/useSettings";
@@ -32,6 +40,42 @@ export default class AceCodeEditorPlugin extends Plugin {
 		this.registerEventHandlers();
 		this.registerCommands();
 		this.registerRibbonCommands();
+
+		// Mobile back-key handler:
+		// When the Ace settings menu (#ace_settingsmenu) is visible and the mobile "back" key is pressed,
+		// emit an Escape keydown event so the menu closes.
+		if (Platform.isMobileApp) {
+			const handleMobileBack = (event: KeyboardEvent) => {
+				// Android hardware back often reports keyCode 4 or key 'GoBack' / 'Back'
+				if (
+					event.key === "GoBack" ||
+					event.key === "Back" ||
+					event.keyCode === 4
+				) {
+					const menu = document.getElementById("ace_settingsmenu");
+					// Check that the menu exists and is visible (offsetParent !== null indicates layout visibility)
+					if (menu && menu.offsetParent !== null) {
+						event.preventDefault();
+						event.stopPropagation();
+						// Dispatch a synthetic Escape keydown to close the menu
+						const escEvent = new KeyboardEvent("keydown", {
+							key: "Escape",
+							code: "Escape",
+							keyCode: 27,
+							which: 27,
+							bubbles: true,
+							cancelable: true,
+						});
+						document.dispatchEvent(escEvent);
+					}
+				}
+			};
+			document.addEventListener("keydown", handleMobileBack);
+			// Unregister listener when plugin is unloaded
+			this.register(() => {
+				document.removeEventListener("keydown", handleMobileBack);
+			});
+		}
 	}
 
 	onunload() {}
@@ -46,7 +90,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 		await this.saveData(this.settings);
 		SettingsBus.publish();
 		const leaves = this.app.workspace.getLeavesOfType(
-			CODE_EDITOR_VIEW_TYPE
+			CODE_EDITOR_VIEW_TYPE,
 		);
 		leaves.forEach((leaf) => {
 			const view = leaf.view;
@@ -92,9 +136,9 @@ export default class AceCodeEditorPlugin extends Plugin {
 						this,
 						ctx.containerEl,
 						file,
-						subpath
+						subpath,
 					);
-				}
+				},
 			);
 		} catch (e) {
 			throw new Error("Failed to register code editor view" + e);
@@ -140,7 +184,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 					this,
 					embedContainer,
 					file,
-					lineRangeMatch[0] // 传递行范围字符串作为subpath
+					lineRangeMatch[0], // 传递行范围字符串作为subpath
 				);
 
 				// 替换原链接
@@ -154,14 +198,14 @@ export default class AceCodeEditorPlugin extends Plugin {
 
 	private registerEventHandlers() {
 		this.registerEvent(
-			this.app.workspace.on("file-menu", this.handleFileMenu.bind(this))
+			this.app.workspace.on("file-menu", this.handleFileMenu.bind(this)),
 		);
 
 		this.registerEvent(
 			this.app.workspace.on(
 				"editor-menu",
-				this.handleEditorMenu.bind(this)
-			)
+				this.handleEditorMenu.bind(this),
+			),
 		);
 	}
 
@@ -207,7 +251,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 			t("command.open_css_snippet_manager"),
 			async () => {
 				await this.openCssSnippetSelector();
-			}
+			},
 		);
 
 		if (this.settings.snippetsManager.location) {
@@ -219,7 +263,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 					this.statusBar.setAttribute("aria-label-position", "top");
 					this.statusBar.setAttribute(
 						"aria-label",
-						t("command.open_css_snippet_manager")
+						t("command.open_css_snippet_manager"),
 					);
 					setIcon(this.statusBar, this.settings.snippetsManager.icon);
 					this.statusBar.addEventListener("click", async () => {
@@ -286,7 +330,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 					const cursor = editor.getCursor();
 					const codeBlock = await getCodeBlockAtCursor(
 						editor,
-						cursor
+						cursor,
 					);
 					if (codeBlock) {
 						await this.openCodeBlockEditor(codeBlock);
@@ -305,7 +349,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 				openInCodeEditor: (path: string, newTab: boolean) =>
 					this.openInCodeEditor(path, newTab),
 			},
-			"modal-size-small"
+			"modal-size-small",
 		).open();
 	}
 
@@ -321,7 +365,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 				openExternalFile: (filePath: string, newTab: boolean) =>
 					this.openExternalFile(filePath, newTab),
 			},
-			"modal-size-medium"
+			"modal-size-medium",
 		).open();
 	}
 
@@ -338,16 +382,16 @@ export default class AceCodeEditorPlugin extends Plugin {
 						this.app,
 						codeBlock.range,
 						newCode,
-						codeBlock.indent
+						codeBlock.indent,
 					),
 			},
-			"modal-size-large"
+			"modal-size-large",
 		).open();
 	}
 
 	async openInCodeEditor(
 		filePath: string,
-		newTab: boolean = false
+		newTab: boolean = false,
 	): Promise<void> {
 		const leaf = this.app.workspace.getLeaf(newTab);
 		await leaf.setViewState({
@@ -359,7 +403,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 
 	private async openExternalFile(
 		filePath: string,
-		newTab: boolean = false
+		newTab: boolean = false,
 	): Promise<void> {
 		const adapter = this.app.vault.adapter;
 		const exists = await adapter.exists(filePath);
@@ -391,7 +435,7 @@ export default class AceCodeEditorPlugin extends Plugin {
 		const modal = new QuickConfigModal(
 			this.app,
 			this.settings,
-			(newSettings) => this.updateSettings(newSettings)
+			(newSettings) => this.updateSettings(newSettings),
 		);
 		modal.open();
 	}
