@@ -31,6 +31,48 @@
 
 
 
+## 1.4.0 (2025-10-24)
+
+
+### Features
+
+* **editor:** 支持通过滚轮与接口调整编辑器字体大小 ([#27](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/27)) ([68dd5fd](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/68dd5fdfc68158167b8fad1e3f9dc18bbee9ae2e))
+* improve mobile experience ([a5ef2d5](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/a5ef2d563d3b926aad2f1ad26ea02dfe4f42df2d))
+* **settings:** extend settings to support more editor options ([7b70084](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/7b7008457a62b074747bcd7c0f4d75a0ea9f1ca8))
+* 为双链添加引用代码块行号功能 ([#33](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/33)) ([450fd8d](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/450fd8dd7afdb609f3b20ae2059bc35bd7b6bb4e))
+* 从 obsidian-ravenhogwarts-toolkit 插件中拆分移植 ([#1](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/1)) ([fbbd582](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/fbbd582ce477b1361f7caea851188370f978ca54))
+* 优化代码编辑器视图注册及设置校验逻辑 ([64a9c6e](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/64a9c6e3626ae00c5d6fa18082f1e2581d76ccdc))
+* 优化代码编辑器设置界面，支持系统字体选择 ([9cc498d](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/9cc498da23edb9adecc9074251c4dfa81cfed47d))
+* 优化代码编辑器设置界面，支持系统字体选择 ([efc2869](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/efc2869fe4e7c8b10c2c7669b2b50f713b4d3b8e))
+* 优化系统字体加载，支持多平台字体检测 ([d044492](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/d04449236b08f6ac36268e61cdf5d3d1814aa52f))
+* 优化系统字体加载逻辑，提升字体去重和排序 ([62d9dae](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/62d9dae87408697a31d0e33af440e559e4f04c28))
+* 增加快捷键 Alt + P 打开obsidian命令面板 ([#38](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/38)) ([8f0834d](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/8f0834d2b536bfe4c6aa0c8d78cbb35a6c392702))
+* 增加配置项，优化设置界面布局 ([#28](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/28)) ([a5c58f9](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/a5c58f9eece8cca1897f5cdfd13640a5e9fa5cf8))
+* 增强插件和自定义CSS接口，优化代码结构 ([5dc03b9](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/5dc03b9299533e43f1c764466179457b358437c1))
+* 新增代码嵌入视图支持及扩展注册机制 ([739b837](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/739b837ed0ec356609cb69c8fa43a685e758d18f))
+* 新增快速配置模态框及相关模糊搜索组件 ([#21](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/21)) ([320f959](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/320f959f77a869fbb804abdb2636c59b496c74f6))
+* 新增设置视图并优化代码嵌入初始化逻辑 ([#20](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/20)) ([c049ad6](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/c049ad60f9ac017646733a2c03e1d184e4b05fd8))
+* 添加编辑器实例获取及内容变化自动保存功能 ([b319713](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/b3197135dd5002c3c384bd7c0a92313d48de1e35))
+* 添加设置页面文档链接和样式调整 ([3d4f642](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/3d4f642531ba4e4a10519155ace3f7abe6da17be))
+
+
+### Bug Fixes
+
+* **i18n:** 修正语言设置逻辑，确保默认语言为英文 ([#24](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/24)) ([cb31f32](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/cb31f32af9b9cf246246994382dd69bd253c9954))
+* **i18n:** 修正默认语言设置逻辑 ([ec6c9a1](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/ec6c9a187f1cefc09c7d45bda9006c8790983117))
+* **i18n:** 统一英文翻译中的大小写格式 ([2044f7a](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/2044f7ad7690234a2bd1a8288a63efbde24026e3))
+* 修复 Ace 编辑器撤销管理 ([8dbf60a](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/8dbf60ac249aa8bbb4ba60fa105ec9be8652d1a2))
+* 修复 Ace 编辑器键盘处理器配置逻辑 ([3b8237a](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/3b8237a200aafa1ea7e8593c4db8ca8a2214039e))
+* 修正 customCss api 接口 ([4077cea](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/4077cea6a59d4a03e7f2a396eb8fae3680367d25))
+* 将 isDesktopOnly 设置为 false 以支持移动端 ([1b8eade](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/1b8eade6477790bd0b186285a46510175ba2d99e))
+* 嵌入视图未正确设置成只读模式 ([#36](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/36)) ([cf006c3](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/cf006c351c723dc9f453deca4e595ec2bb458aad))
+* 插件上架审核 ([#4](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/issues/4)) ([989c53b](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/989c53bdd1439df95f76aea8a5b03e64d1a69401))
+
+
+### Miscellaneous Chores
+
+* release 1.4.0 ([63c8a68](https://github.com/AbysmalBiscuit/obsidian-ace-code-editor/commit/63c8a68be92e0caed8e85421d279c13da8c4b1cd))
+
 ## [1.2.3](https://github.com/RavenHogWarts/obsidian-ace-code-editor/compare/1.2.2...1.2.3) (2025-08-12)
 
 
@@ -207,6 +249,3 @@
 ### ✨ 新功能
 
 * 从 obsidian-ravenhogwarts-toolkit 插件中拆分移植 (#1) ([fbbd582](https://github.com/RavenHogWarts/obsidian-ace-code-editor/commit/fbbd582ce477b1361f7caea851188370f978ca54)), closes [#1](https://github.com/RavenHogWarts/obsidian-ace-code-editor/issues/1)
-
-
-
