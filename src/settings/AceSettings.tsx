@@ -50,84 +50,58 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 	React.useEffect(() => {
 		async function loadSystemFonts() {
 			try {
-				let fonts: string[] = [];
+				const uniqueFonts = new Set<string>();
 
-				// 根据平台选择不同的字体获取策略
-				if (Platform.isDesktopApp) {
-					// 桌面端：尝试使用 Local Font Access API
-					if ("queryLocalFonts" in window) {
-						try {
-							const localFonts = await window.queryLocalFonts();
-							const fontFamilies = new Set<string>();
-
-							localFonts.forEach((font) => {
-								if (font.family) {
-									fontFamilies.add(font.family);
-								}
-							});
-
-							fonts = Array.from(fontFamilies).sort();
-						} catch (error) {
-							console.warn(
-								"Local Font Access API failed:",
-								error
-							);
-							// 降级到预定义字体列表，但只包含可用的
-							fonts = await getAvailableFonts(
-								getDesktopFallbackFonts()
-							);
-						}
-					} else {
-						// 桌面端但不支持 Local Font Access API，检测可用字体
-						fonts = await getAvailableFonts(
-							getDesktopFallbackFonts()
+				// 1. 尝试使用 Local Font Access API 获取本地字体
+				if (Platform.isDesktopApp && "queryLocalFonts" in window) {
+					try {
+						const localFonts = await window.queryLocalFonts();
+						localFonts.forEach((font) => {
+							if (font.family) {
+								uniqueFonts.add(font.family);
+							}
+						});
+					} catch (error) {
+						console.warn(
+							"Local Font Access API failed, falling back:",
+							error,
 						);
 					}
+				}
+
+				// 2. 添加 all predefined fallback fonts without availability check, all as suggestions
+				let fallbackFonts: string[] = [];
+				if (Platform.isDesktopApp) {
+					fallbackFonts = getDesktopFallbackFonts();
 				} else if (Platform.isMobileApp) {
-					// 移动端：检测可用的移动端字体
-					fonts = await getAvailableFonts(getMobileFallbackFonts());
+					fallbackFonts = getMobileFallbackFonts();
 				} else {
-					// Web端或其他平台：检测可用的通用字体
-					fonts = await getAvailableFonts(getWebFallbackFonts());
+					fallbackFonts = getWebFallbackFonts();
 				}
+				fallbackFonts
+					.concat(getBasicFallbackFonts())
+					.forEach((font) => {
+						uniqueFonts.add(font);
+					});
 
-				// 确保至少有基础字体可用
-				if (fonts.length === 0) {
-					fonts = await getAvailableFonts(getBasicFallbackFonts());
-				}
+				// 3. 将当前设置中已有的字体也加入建议列表，确保用户输入的自定义字体也能被再次建议
+				settingsValue.fontFamily.forEach((font) =>
+					uniqueFonts.add(font),
+				);
 
-				setSystemFonts(fonts);
+				const sortedFonts = Array.from(uniqueFonts).sort((a, b) =>
+					a.localeCompare(b),
+				);
+				setSystemFonts(sortedFonts);
 			} catch (error) {
-				new Notice("无法获取系统字体，已加载基础字体列表");
-				console.error("获取系统字体失败:", error);
-				// 使用最基础的字体列表作为最后的降级方案
-				const basicFonts = await getAvailableFonts(
-					getBasicFallbackFonts()
-				);
-				setSystemFonts(
-					basicFonts.length > 0
-						? basicFonts
-						: ["monospace", "sans-serif"]
-				);
+				new Notice("Failed to load system fonts, using basic list.");
+				console.error("Error loading system fonts:", error);
+				setSystemFonts(["monospace", "sans-serif"]);
 			}
 		}
 
 		loadSystemFonts();
 	}, []);
-
-	// 异步检测字体可用性并返回可用字体列表
-	async function getAvailableFonts(fontList: string[]): Promise<string[]> {
-		const availableFonts: string[] = [];
-
-		// 批量检测字体可用性
-		for (const font of fontList) {
-			if (await isFontAvailable(font)) {
-				availableFonts.push(font);
-			}
-		}
-
-		return availableFonts.sort();
-	}
 
 	// 获取桌面端常见字体（Windows/macOS/Linux）
 	function getDesktopFallbackFonts(): string[] {
@@ -200,37 +174,6 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 		return ["monospace", "sans-serif", "serif", "Arial", "Courier New"];
 	}
 
-	// 异步检测字体是否可用（优化版本）
-	async function isFontAvailable(fontName: string): Promise<boolean> {
-		return new Promise((resolve) => {
-			try {
-				// 创建测试元素
-				const testElement = document.createElement("div");
-				testElement.style.position = "absolute";
-				testElement.style.visibility = "hidden";
-				testElement.style.fontSize = "12px";
-				testElement.style.fontFamily = "monospace";
-				testElement.textContent = "mmmmmmmmmmlli";
-
-				document.body.appendChild(testElement);
-				const defaultWidth = testElement.offsetWidth;
-
-				// 测试目标字体
-				testElement.style.fontFamily = `"${fontName}", monospace`;
-				const testWidth = testElement.offsetWidth;
-
-				// 清理测试元素
-				document.body.removeChild(testElement);
-
-				// 如果宽度不同，说明字体可用
-				resolve(defaultWidth !== testWidth);
-			} catch (error) {
-				console.warn(`Font detection failed for ${fontName}:`, error);
-				resolve(false);
-			}
-		});
-	}
-
 	const handleUpdateConfig = React.useCallback(
 		async (newSettings: Partial<ICodeEditorConfig>) => {
 			const updatedSettings = { ...settingsValue, ...newSettings };
@@ -238,7 +181,7 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 			// 直接调用plugin.updateSettings，避免useEffect带来的副作用
 			await plugin.updateSettings(newSettings);
 		},
-		[settingsValue, plugin]
+		[settingsValue, plugin],
 	);
 
 	const lightThemeOptions = React.useMemo(
@@ -247,7 +190,7 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 				value: theme,
 				label: theme,
 			})),
-		[]
+		[],
 	);
 
 	const darkThemeOptions = React.useMemo(
@@ -256,7 +199,7 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 				value: theme,
 				label: theme,
 			})),
-		[]
+		[],
 	);
 
 	const keyboardOptions = React.useMemo(
@@ -265,7 +208,18 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 				value: keyboard,
 				label: keyboard,
 			})),
-		[]
+		[],
+	);
+
+	const softWrapOptions = React.useMemo(
+		() => [
+			{ value: "off", label: "Off" },
+			{ value: "free", label: "Free" },
+			{ value: "printmargin", label: "Print Margin" },
+			{ value: "true", label: "Wrap Enabled" },
+			{ value: "false", label: "Wrap Disabled" },
+		],
+		[],
 	);
 
 	const EditorSettings = React.useMemo(() => {
@@ -399,9 +353,39 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 						}
 					/>
 				</SettingsItem>
+
+				<SettingsItem
+					name={t("setting.softWrap.name")}
+					desc={t("setting.softWrap.desc")}
+				>
+					<Select
+						options={softWrapOptions}
+						value={
+							typeof settingsValue.softWrap === "boolean"
+								? String(settingsValue.softWrap)
+								: typeof settingsValue.softWrap === "number"
+									? "printmargin" // Default to 'printmargin' if softWrap is a number for display in Select
+									: settingsValue.softWrap
+						}
+						onChange={(selectedValue) => {
+							let newValue: ICodeEditorConfig["softWrap"];
+							if (selectedValue === "true") {
+								newValue = true;
+							} else if (selectedValue === "false") {
+								newValue = false;
+							} else {
+								newValue = selectedValue as
+									| "off"
+									| "free"
+									| "printmargin";
+							}
+							handleUpdateConfig({ softWrap: newValue });
+						}}
+					/>
+				</SettingsItem>
 			</>
 		);
-	}, [settingsValue, systemFonts, handleUpdateConfig]);
+	}, [settingsValue, systemFonts, handleUpdateConfig, softWrapOptions]);
 
 	const SessionSettings = React.useMemo(() => {
 		return (
@@ -547,7 +531,7 @@ export const AceSettings: React.FC<AceSettingsProps> = ({ plugin }) => {
 			EditorSettings,
 			ExtendSettings,
 			AboutSettings,
-		]
+		],
 	);
 
 	return (

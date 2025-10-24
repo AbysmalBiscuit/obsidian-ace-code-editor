@@ -26,6 +26,7 @@ export const Select: React.FC<SelectProps> = ({
 	const selectRef = React.useRef<HTMLDivElement>(null);
 	const dropdownRef = React.useRef<HTMLDivElement>(null);
 	const selectedOptionRef = React.useRef<HTMLDivElement>(null);
+	const [maxDropdownWidth, setMaxDropdownWidth] = React.useState(0);
 
 	const selectedOption = options.find((opt) => opt.value === value);
 	const selectedIndex = options.findIndex((opt) => opt.value === value);
@@ -40,11 +41,11 @@ export const Select: React.FC<SelectProps> = ({
 	const totalHeight = options.length * itemHeight;
 	const visibleOptionsEndIndex = Math.min(
 		visibleStartIndex + visibleItems + bufferItems,
-		options.length
+		options.length,
 	);
 	const visibleOptions = options.slice(
 		Math.max(0, visibleStartIndex - bufferItems),
-		visibleOptionsEndIndex
+		visibleOptionsEndIndex,
 	);
 
 	// 处理滚动事件
@@ -54,7 +55,7 @@ export const Select: React.FC<SelectProps> = ({
 			const newStartIndex = Math.floor(scrollTop / itemHeight);
 			setVisibleStartIndex(newStartIndex);
 		},
-		[itemHeight]
+		[itemHeight],
 	);
 
 	// 打开下拉框时滚动到选中项
@@ -63,7 +64,7 @@ export const Select: React.FC<SelectProps> = ({
 			const scrollPosition = selectedIndex * itemHeight;
 			dropdownRef.current.scrollTop = scrollPosition;
 			setVisibleStartIndex(
-				Math.max(0, selectedIndex - Math.floor(visibleItems / 2))
+				Math.max(0, selectedIndex - Math.floor(visibleItems / 2)),
 			);
 		}
 	}, [isOpen, selectedIndex, itemHeight, visibleItems]);
@@ -83,6 +84,42 @@ export const Select: React.FC<SelectProps> = ({
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
+	// Calculate max width of dropdown options whenever options change.
+	// This ensures the dropdown has sufficient width for the widest item when opened.
+	React.useEffect(() => {
+		if (options.length > 0) {
+			let maxWidth = 0;
+			const tempSpan = document.createElement("span");
+			tempSpan.style.position = "absolute";
+			tempSpan.style.visibility = "hidden";
+			tempSpan.style.whiteSpace = "nowrap";
+
+			// Clone styles from a representative element for accurate measurement.
+			// Since .ace-select-option doesn't specify font, it inherits.
+			// Using document.body's computed style as a baseline.
+			tempSpan.style.fontFamily = getComputedStyle(
+				document.body,
+			).fontFamily;
+			tempSpan.style.fontSize = getComputedStyle(document.body).fontSize;
+			tempSpan.style.padding = "8px 12px"; // Match .ace-select-option padding
+
+			document.body.appendChild(tempSpan);
+
+			options.forEach((option) => {
+				tempSpan.textContent = option.label;
+				maxWidth = Math.max(maxWidth, tempSpan.offsetWidth + 20);
+			});
+
+			document.body.removeChild(tempSpan);
+
+			// maxDropdownWidth now includes padding from tempSpan.
+			// If the main select button has an arrow, its width will also be a factor
+			// in the overall width when open. For simplicity, we'll set the wrapper width
+			// directly to maxDropdownWidth to align with the dropdown.
+			setMaxDropdownWidth(maxWidth);
+		}
+	}, [options]); // Dependencies: Recalculate when options change.
+
 	return (
 		<div className="ace-select-wrapper" ref={selectRef}>
 			<div
@@ -90,6 +127,12 @@ export const Select: React.FC<SelectProps> = ({
 					isOpen ? "ace-select-open" : ""
 				} ${className}`}
 				onClick={() => setIsOpen(!isOpen)}
+				style={{
+					width:
+						isOpen && maxDropdownWidth > 0
+							? `${maxDropdownWidth}px`
+							: "auto",
+				}}
 			>
 				<span className="ace-select-value">
 					{selectedOption ? selectedOption.label : placeholder}
@@ -103,6 +146,13 @@ export const Select: React.FC<SelectProps> = ({
 					ref={dropdownRef}
 					className="ace-select-dropdown"
 					onScroll={handleScroll}
+					style={{
+						// The dropdown itself should always be as wide as the widest option calculated.
+						width:
+							maxDropdownWidth > 0
+								? `${maxDropdownWidth}px`
+								: "auto",
+					}}
 				>
 					<div
 						className="ace-select-options-container"
@@ -131,6 +181,7 @@ export const Select: React.FC<SelectProps> = ({
 									style={{
 										position: "absolute",
 										top: `${actualIndex * itemHeight}px`,
+										// Options within the dropdown should take 100% of the dropdown's width.
 										width: "100%",
 										height: `${itemHeight}px`,
 									}}

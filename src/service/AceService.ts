@@ -116,7 +116,7 @@ export class AceService {
 
 	private getEditorSettings(
 		languageMode: string,
-		config: ICodeEditorConfig
+		config: ICodeEditorConfig,
 	): Partial<ace.Ace.EditorOptions> {
 		return {
 			// -- editor选项 --
@@ -180,6 +180,7 @@ export class AceService {
 			// 标签大小
 			tabSize: config.tabSize,
 			// 换行 wrap
+			wrap: config.softWrap,
 			// 折叠样式 foldStyle [markbegin|markbeginend|manual]
 			// 代码匹配模式
 			mode: `ace/mode/${languageMode}`,
@@ -264,7 +265,7 @@ export class AceService {
 		lineNumber: number,
 		column: number = 0,
 		animate: boolean = false,
-		center: boolean = true
+		center: boolean = true,
 	): void {
 		if (!this.editor) return;
 
@@ -286,7 +287,7 @@ export class AceService {
 	scrollToLine(
 		lineNumber: number,
 		center: boolean = true,
-		animate: boolean = false
+		animate: boolean = false,
 	): void {
 		if (!this.editor) return;
 		this.editor.scrollToLine(lineNumber - 1, center, animate);
@@ -303,7 +304,7 @@ export class AceService {
 		startLine: number,
 		endLine: number,
 		startColumn: number = 0,
-		endColumn?: number
+		endColumn?: number,
 	): void {
 		if (!this.editor) return;
 

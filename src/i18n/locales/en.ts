@@ -122,6 +122,10 @@ const translations: BaseMessage = {
 			name: "Embed code block max height",
 			desc: "Maximum height of embedded code blocks (in px). A scrollbar will appear if this height is exceeded",
 		},
+		softWrap: {
+			name: "Enable soft wrapping",
+			desc: "Soft wrap lines that would not fit on the screen",
+		}
 	},
 };
 

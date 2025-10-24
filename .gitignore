@@ -30,3 +30,11 @@ Thumbs.db
 *.zip
 .env
 dist
+
+# Ignore local user AI rules
+.github/copilot-instructions.md
+.cursorrules
+.cursorignore
+AGENTS.md
+CLAUDE.md
+GEMINI.md

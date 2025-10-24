@@ -119,6 +119,10 @@ const translations: BaseMessage = {
 			name: "嵌入程式碼區塊最大高度",
 			desc: "嵌入程式碼區塊的最大高度(單位px)，超過該高度將出現滾動條",
 		},
+		softWrap: {
+			name: "Enable soft wrapping",
+			desc: "Soft wrap lines that would not fit on the screen",
+		}
 	},
 };
 

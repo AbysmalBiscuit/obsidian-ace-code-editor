@@ -95,6 +95,7 @@ export type BaseMessage = {
 		displayIndentGuides: IBaseSettingsItem;
 		showFoldWidgets: IBaseSettingsItem;
 		embedMaxHeight: IBaseSettingsItem;
+		softWrap: IBaseSettingsItem;
 	};
 };
 
@@ -102,22 +103,22 @@ export type BaseMessage = {
 type PathsToStringProps<T> = T extends string
 	? []
 	: {
-			[K in Extract<keyof T, string>]: [K, ...PathsToStringProps<T[K]>];
-	  }[Extract<keyof T, string>];
+		[K in Extract<keyof T, string>]: [K, ...PathsToStringProps<T[K]>];
+	}[Extract<keyof T, string>];
 
 // 将路径数组转换为点号分隔的字符串
 type JoinPath<T extends string[]> = T extends []
 	? never
 	: T extends [infer F]
 	? F extends string
-		? F
-		: never
+	? F
+	: never
 	: T extends [infer F, ...infer R]
 	? F extends string
-		? R extends string[]
-			? `${F}.${JoinPath<R>}`
-			: never
-		: never
+	? R extends string[]
+	? `${F}.${JoinPath<R>}`
+	: never
+	: never
 	: never;
 
 // 生成所有可能的翻译键

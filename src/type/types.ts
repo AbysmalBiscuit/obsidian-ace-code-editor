@@ -24,6 +24,7 @@ export interface ICodeEditorConfig {
 	displayIndentGuides: boolean;
 	showFoldWidgets: boolean;
 	embedMaxHeight: number;
+	softWrap: "off" | "free" | "printmargin" | boolean | number;
 }
 
 export const DEFAULT_CONFIG: ICodeEditorConfig = {
@@ -44,6 +45,7 @@ export const DEFAULT_CONFIG: ICodeEditorConfig = {
 	displayIndentGuides: true,
 	showFoldWidgets: true,
 	embedMaxHeight: 500,
+	softWrap: "off",
 };
 
 export interface ICodeBlock {
